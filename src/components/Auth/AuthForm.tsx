@@ -3,7 +3,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
 interface AuthFormProps {
   mode: 'login' | 'register';
@@ -53,7 +57,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
         }
         
         await register(formData.name, formData.email, formData.password);
-        toast.success('Registration successful!');
+        toast.success('Registration successful! Please check your email for verification.');
         navigate('/');
       } else {
         await login(formData.email, formData.password);
@@ -69,113 +73,117 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
   };
   
   return (
-    <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
-      <h2 className="text-2xl font-bold mb-6 text-center">
-        {mode === 'login' ? 'Login to Your Account' : 'Create an Account'}
-      </h2>
+    <Card className="w-full max-w-md">
+      <CardHeader>
+        <CardTitle>
+          {mode === 'login' ? 'Login to Your Account' : 'Create an Account'}
+        </CardTitle>
+        <CardDescription>
+          {mode === 'login' 
+            ? 'Enter your credentials to access your account' 
+            : 'Fill in the form below to create a new account'}
+        </CardDescription>
+      </CardHeader>
       
-      {error && (
-        <div className="bg-red-50 text-shop-error p-4 rounded-md mb-6">
-          {error}
-        </div>
-      )}
-      
-      <form onSubmit={handleSubmit}>
-        {mode === 'register' && (
-          <div className="mb-4">
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-              Full Name
-            </label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              autoComplete="name"
-              required
-              className="input-field w-full"
-              value={formData.name}
-              onChange={handleChange}
-            />
+      <CardContent>
+        {error && (
+          <div className="bg-red-50 text-shop-error p-4 rounded-md mb-6">
+            {error}
           </div>
         )}
         
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-            Email Address
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            className="input-field w-full"
-            value={formData.email}
-            onChange={handleChange}
-          />
-        </div>
-        
-        <div className="mb-4">
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-            Password
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-            required
-            className="input-field w-full"
-            value={formData.password}
-            onChange={handleChange}
-          />
-        </div>
-        
-        {mode === 'register' && (
-          <div className="mb-6">
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-              Confirm Password
-            </label>
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {mode === 'register' && (
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                name="name"
+                type="text"
+                autoComplete="name"
+                required
+                value={formData.name}
+                onChange={handleChange}
+              />
+            </div>
+          )}
+          
+          <div className="space-y-2">
+            <Label htmlFor="email">Email Address</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              value={formData.email}
+              onChange={handleChange}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              name="password"
               type="password"
-              autoComplete="new-password"
+              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
               required
-              className="input-field w-full"
-              value={formData.confirmPassword}
+              value={formData.password}
               onChange={handleChange}
             />
           </div>
-        )}
-        
-        <Button
-          type="submit"
-          className="w-full bg-shop-primary hover:bg-shop-accent text-white button-hover py-2"
-          disabled={isLoading}
-        >
-          {isLoading ? 'Please wait...' : mode === 'login' ? 'Login' : 'Register'}
-        </Button>
-      </form>
+          
+          {mode === 'register' && (
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                autoComplete="new-password"
+                required
+                value={formData.confirmPassword}
+                onChange={handleChange}
+              />
+            </div>
+          )}
+          
+          <Button
+            type="submit"
+            className="w-full bg-shop-primary hover:bg-shop-accent text-white"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Please wait...
+              </>
+            ) : (
+              mode === 'login' ? 'Login' : 'Register'
+            )}
+          </Button>
+        </form>
+      </CardContent>
       
-      <div className="mt-6 text-center">
+      <CardFooter className="flex justify-center">
         {mode === 'login' ? (
-          <p className="text-gray-600">
+          <p className="text-sm text-gray-600">
             Don't have an account?{' '}
             <a href="/register" className="text-shop-primary hover:underline">
               Register here
             </a>
           </p>
         ) : (
-          <p className="text-gray-600">
+          <p className="text-sm text-gray-600">
             Already have an account?{' '}
             <a href="/login" className="text-shop-primary hover:underline">
               Login here
             </a>
           </p>
         )}
-      </div>
-    </div>
+      </CardFooter>
+    </Card>
   );
 };
 

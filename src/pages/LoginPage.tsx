@@ -6,7 +6,18 @@ import AuthForm from '@/components/Auth/AuthForm';
 import { useAuth } from '@/context/AuthContext';
 
 const LoginPage = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+  
+  // Wait until auth is loaded
+  if (isLoading) {
+    return (
+      <MainLayout>
+        <div className="container mx-auto px-4 py-16 flex justify-center items-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-shop-primary"></div>
+        </div>
+      </MainLayout>
+    );
+  }
   
   // Redirect if already logged in
   if (isAuthenticated) {
