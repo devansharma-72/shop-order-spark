@@ -1,9 +1,18 @@
 
+// Custom types for the app
 export interface User {
   id: string;
-  name: string;
   email: string;
-  address?: string;
+  // Note: These have been removed as they're not directly on the User object from Supabase
+  // name: string;
+  // address?: string;
+}
+
+export interface Profile {
+  id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  role: 'admin' | 'customer';
 }
 
 export interface Product {

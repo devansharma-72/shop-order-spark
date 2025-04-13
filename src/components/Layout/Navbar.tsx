@@ -13,7 +13,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
 
 const Navbar = () => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, profile, isAuthenticated, logout } = useAuth();
   const { totalItems } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,6 +25,9 @@ const Navbar = () => {
     // In a real app, we would implement search logic here
     console.log('Searching for:', searchQuery);
   };
+  
+  // Get the first name from profile if available
+  const firstName = profile?.full_name ? profile.full_name.split(' ')[0] : 'User';
   
   return (
     <header className="bg-shop-dark text-white shadow-md">
@@ -70,7 +73,7 @@ const Navbar = () => {
               <div className="flex items-center space-x-4">
                 <Link to="/account" className="hover:text-shop-secondary flex items-center gap-1">
                   <User size={20} />
-                  <span className="text-sm">{user?.name.split(' ')[0]}</span>
+                  <span className="text-sm">{firstName}</span>
                 </Link>
                 <Button 
                   variant="ghost" 

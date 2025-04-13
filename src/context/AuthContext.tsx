@@ -1,15 +1,8 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-
-interface Profile {
-  id: string;
-  full_name: string | null;
-  avatar_url: string | null;
-  role: 'admin' | 'customer';
-}
+import { Profile } from '@/types';
 
 interface AuthContextType {
   user: User | null;

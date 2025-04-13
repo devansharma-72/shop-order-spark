@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import MainLayout from '@/components/Layout/MainLayout';
@@ -9,7 +8,7 @@ import { Order } from '@/types';
 import { Package, ShoppingBag, User as UserIcon, LogOut } from 'lucide-react';
 
 const AccountPage = () => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, profile, isAuthenticated, logout } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -48,7 +47,7 @@ const AccountPage = () => {
                 <UserIcon size={24} />
               </div>
               <div>
-                <h2 className="text-xl font-bold">{user?.name}</h2>
+                <h2 className="text-xl font-bold">{profile?.full_name || 'User'}</h2>
                 <p className="text-gray-600">{user?.email}</p>
               </div>
             </div>
