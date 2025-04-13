@@ -50,7 +50,7 @@ const Index = () => {
                   </Button>
                 </Link>
                 <Link to="/about">
-                  <Button variant="outline" className="text-white border-white hover:bg-white hover:text-shop-dark text-lg px-6 py-3">
+                  <Button className="bg-shop-primary hover:bg-shop-accent button-hover text-lg px-6 py-3">
                     Learn More
                   </Button>
                 </Link>
