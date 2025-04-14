@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import MainLayout from '@/components/Layout/MainLayout';
@@ -12,10 +11,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 
 const AccountPage = () => {
-  const { user, profile, isAuthenticated, logout } = useAuth();
+  const { user, profile, isAuthenticated, logout, updateProfile } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -65,21 +63,14 @@ const AccountPage = () => {
     if (!user) return;
     
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          full_name: formData.fullName,
-          avatar_url: formData.avatarUrl
-        })
-        .eq('id', user.id);
+      await updateProfile({
+        full_name: formData.fullName,
+        avatar_url: formData.avatarUrl
+      });
       
-      if (error) throw error;
-      
-      toast.success('Profile updated successfully');
       setIsEditDialogOpen(false);
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error('Failed to update profile');
     }
   };
   

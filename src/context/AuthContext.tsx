@@ -95,8 +95,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw error;
       }
 
-      // Update local profile state
-      setProfile(prev => prev ? { ...prev, ...data } : null);
+      // Fetch the updated profile to ensure state is in sync with database
+      await fetchProfile(user.id);
       
       toast.success('Profile updated successfully');
     } catch (error: any) {
