@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
@@ -7,7 +8,7 @@ import { toast } from 'sonner';
 
 const CheckoutForm = () => {
   const { user, profile } = useAuth();
-  const { cart, totalPrice, clearCart } = useCart();
+  const { items, totalPrice, clearCart } = useCart();
   const navigate = useNavigate();
   
   // Pre-fill form with user data if available
@@ -35,7 +36,7 @@ const CheckoutForm = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Process payment and create order
-    console.log('Processing order:', { user, items: cart, shipping: formData });
+    console.log('Processing order:', { user, items, shipping: formData });
     
     // Simulate payment processing delay
     toast.loading('Processing payment...');
