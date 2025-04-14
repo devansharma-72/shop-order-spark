@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import MainLayout from '@/components/Layout/MainLayout';
@@ -5,12 +6,35 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { fetchOrdersByUserId } from '@/data/mockData';
 import { Order } from '@/types';
-import { Package, ShoppingBag, User as UserIcon, LogOut } from 'lucide-react';
+import { Package, ShoppingBag, User as UserIcon, LogOut, Edit, Mail, Phone } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 const AccountPage = () => {
   const { user, profile, isAuthenticated, logout } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    avatarUrl: ''
+  });
+  
+  useEffect(() => {
+    // Update form data when profile changes
+    if (profile) {
+      setFormData({
+        fullName: profile.full_name || '',
+        email: user?.email || '',
+        avatarUrl: profile.avatar_url || ''
+      });
+    }
+  }, [profile, user]);
   
   useEffect(() => {
     const loadOrders = async () => {
@@ -28,11 +52,52 @@ const AccountPage = () => {
     
     loadOrders();
   }, [user]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+
+  const handleProfileUpdate = async () => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: formData.fullName,
+          avatar_url: formData.avatarUrl
+        })
+        .eq('id', user.id);
+      
+      if (error) throw error;
+      
+      toast.success('Profile updated successfully');
+      setIsEditDialogOpen(false);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error('Failed to update profile');
+    }
+  };
   
   // Redirect if not logged in
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
   }
+
+  // Get initials for avatar fallback
+  const getInitials = () => {
+    if (!profile?.full_name) return 'U';
+    return profile.full_name
+      .split(' ')
+      .map(name => name[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  };
   
   return (
     <MainLayout>
@@ -43,18 +108,28 @@ const AccountPage = () => {
           {/* User Profile */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex items-center gap-4 mb-6">
-              <div className="bg-shop-primary text-white rounded-full w-16 h-16 flex items-center justify-center">
-                <UserIcon size={24} />
-              </div>
+              <Avatar className="w-16 h-16">
+                {profile?.avatar_url ? (
+                  <AvatarImage src={profile.avatar_url} alt={profile?.full_name || 'User'} />
+                ) : (
+                  <AvatarFallback className="bg-shop-primary text-white text-lg">
+                    {getInitials()}
+                  </AvatarFallback>
+                )}
+              </Avatar>
               <div>
-                <h2 className="text-xl font-bold">{profile?.full_name || 'User'}</h2>
+                <h2 className="text-xl font-bold">{profile?.full_name || 'Welcome'}</h2>
                 <p className="text-gray-600">{user?.email}</p>
               </div>
             </div>
             
             <div className="space-y-4">
-              <Button variant="outline" className="w-full justify-start">
-                <UserIcon size={18} className="mr-2" />
+              <Button 
+                variant="outline" 
+                className="w-full justify-start"
+                onClick={() => setIsEditDialogOpen(true)}
+              >
+                <Edit size={18} className="mr-2" />
                 Edit Profile
               </Button>
               <Button variant="outline" className="w-full justify-start">
@@ -162,6 +237,66 @@ const AccountPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Edit Profile Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Profile</DialogTitle>
+            <DialogDescription>
+              Update your profile information
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="fullName" className="text-right">
+                Name
+              </Label>
+              <Input
+                id="fullName"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleInputChange}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="email" className="text-right">
+                Email
+              </Label>
+              <Input
+                id="email"
+                value={formData.email}
+                disabled
+                className="col-span-3 bg-gray-100"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="avatarUrl" className="text-right">
+                Avatar URL
+              </Label>
+              <Input
+                id="avatarUrl"
+                name="avatarUrl"
+                value={formData.avatarUrl}
+                onChange={handleInputChange}
+                placeholder="https://example.com/avatar.png"
+                className="col-span-3"
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleProfileUpdate}>
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </MainLayout>
   );
 };

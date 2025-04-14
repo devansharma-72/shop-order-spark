@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,6 +15,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateProfile: (data: Partial<Profile>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -75,6 +77,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setProfile(data as Profile);
     } catch (error) {
       console.error('Error in profile fetch:', error);
+    }
+  };
+
+  const updateProfile = async (data: Partial<Profile>) => {
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update(data)
+        .eq('id', user.id);
+
+      if (error) {
+        throw error;
+      }
+
+      // Update local profile state
+      setProfile(prev => prev ? { ...prev, ...data } : null);
+      
+      toast.success('Profile updated successfully');
+    } catch (error: any) {
+      console.error('Profile update error:', error);
+      toast.error(error.message || 'Failed to update profile');
+      throw error;
     }
   };
   
@@ -149,7 +177,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         login, 
         register, 
-        logout 
+        logout,
+        updateProfile
       }}
     >
       {children}
