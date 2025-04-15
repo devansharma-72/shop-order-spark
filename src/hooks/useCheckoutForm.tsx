@@ -94,7 +94,7 @@ export const useCheckoutForm = () => {
       toast.dismiss();
       toast.success('Payment successful!');
       clearCart();
-      navigate('/order-confirmation');
+      navigate(`/order-confirmation?orderId=${orderData.id}`);
     } catch (error) {
       console.error('Error creating order:', error);
       toast.dismiss();
