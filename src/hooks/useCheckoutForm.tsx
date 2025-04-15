@@ -59,7 +59,8 @@ export const useCheckoutForm = () => {
         .insert({
           user_id: user.id,
           total_amount: totalAmount,
-          shipping_address: shippingAddress
+          shipping_address: shippingAddress,
+          status: 'pending' // Explicitly set the initial status
         })
         .select()
         .single();

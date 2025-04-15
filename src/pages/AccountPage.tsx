@@ -1,9 +1,8 @@
-
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import MainLayout from '@/components/Layout/MainLayout';
 import { useAuth } from '@/context/AuthContext';
-import { Order } from '@/types';
+import { Order, toOrderStatus } from '@/types';
 import { toast } from 'sonner';
 import ProfileCard from '@/components/Account/ProfileCard';
 import OrderHistory from '@/components/Account/OrderHistory';
@@ -73,7 +72,7 @@ const AccountPage = () => {
               id: order.id,
               userId: order.user_id,
               totalAmount: order.total_amount,
-              status: order.status,
+              status: toOrderStatus(order.status),
               createdAt: order.created_at,
               shippingAddress: order.shipping_address,
               items: orderItems.map(item => ({

@@ -41,3 +41,11 @@ export interface Order {
   createdAt: string;
   shippingAddress: string;
 }
+
+// Function to validate and convert string to OrderStatus
+export function toOrderStatus(status: string): OrderStatus {
+  const validStatuses: OrderStatus[] = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+  return validStatuses.includes(status as OrderStatus) 
+    ? (status as OrderStatus) 
+    : 'pending'; // Default to 'pending' if invalid status
+}
