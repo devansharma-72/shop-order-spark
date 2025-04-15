@@ -1,8 +1,10 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Search, User, X } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
+import { Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import NavbarAuthButtons from './NavbarAuthButtons';
+import ThemeToggle from '../ThemeToggle';
 
 interface NavbarMobileProps {
   searchQuery: string;
@@ -12,106 +14,55 @@ interface NavbarMobileProps {
   isMenuOpen: boolean;
 }
 
-const NavbarMobile: React.FC<NavbarMobileProps> = ({
+const NavbarMobile = ({
   searchQuery,
   setSearchQuery,
   handleSearch,
-  toggleMenu,
-  isMenuOpen
-}) => {
-  const { isAuthenticated, logout } = useAuth();
-
+  toggleMenu
+}: NavbarMobileProps) => {
   return (
-    <div className="md:hidden mt-4 py-4 bg-shop-dark animate-fade-in">
-      <form onSubmit={handleSearch} className="mb-4">
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Search products..."
-            className="w-full py-2 px-4 rounded-md text-black"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <button 
-            type="submit" 
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
-          >
-            <Search size={18} />
-          </button>
-        </div>
+    <div className="mt-4 pb-4 border-t border-gray-700">
+      <form onSubmit={handleSearch} className="mt-4 flex">
+        <input
+          type="text"
+          placeholder="Search products..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="flex-grow px-4 py-2 text-gray-900 bg-white rounded-l"
+        />
+        <Button type="submit" className="px-4 py-2 rounded-l-none">
+          <Search size={20} />
+        </Button>
       </form>
       
-      <nav className="flex flex-col space-y-3">
+      <div className="flex flex-col mt-4 space-y-2">
+        <div className="flex items-center justify-between">
+          <NavbarAuthButtons />
+          <ThemeToggle />
+        </div>
+        
         <Link 
           to="/" 
-          className="py-2 hover:bg-gray-800 px-4 rounded" 
+          className="block px-4 py-2 hover:bg-gray-700 rounded" 
           onClick={toggleMenu}
         >
           Home
         </Link>
         <Link 
           to="/products" 
-          className="py-2 hover:bg-gray-800 px-4 rounded" 
+          className="block px-4 py-2 hover:bg-gray-700 rounded" 
           onClick={toggleMenu}
         >
           Products
         </Link>
         <Link 
           to="/about" 
-          className="py-2 hover:bg-gray-800 px-4 rounded" 
+          className="block px-4 py-2 hover:bg-gray-700 rounded" 
           onClick={toggleMenu}
         >
           About
         </Link>
-        <Link 
-          to="/contact" 
-          className="py-2 hover:bg-gray-800 px-4 rounded" 
-          onClick={toggleMenu}
-        >
-          Contact
-        </Link>
-        
-        <div className="border-t border-gray-700 my-2 pt-2">
-          {isAuthenticated ? (
-            <>
-              <Link 
-                to="/account" 
-                className="py-2 hover:bg-gray-800 px-4 rounded flex items-center gap-2" 
-                onClick={toggleMenu}
-              >
-                <User size={18} />
-                My Account
-              </Link>
-              <button 
-                onClick={() => {
-                  logout();
-                  toggleMenu();
-                }}
-                className="w-full text-left py-2 hover:bg-gray-800 px-4 rounded"
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <Link 
-                to="/login" 
-                className="block py-2 hover:bg-gray-800 px-4 rounded" 
-                onClick={toggleMenu}
-              >
-                Login
-              </Link>
-              <Link 
-                to="/register" 
-                className="block py-2 bg-shop-primary hover:bg-shop-accent px-4 rounded mt-2" 
-                onClick={toggleMenu}
-              >
-                Register
-              </Link>
-            </>
-          )}
-        </div>
-      </nav>
+      </div>
     </div>
   );
 };

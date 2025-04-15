@@ -7,6 +7,7 @@ import NavbarSearch from './NavbarSearch';
 import NavbarAuthButtons from './NavbarAuthButtons';
 import NavbarCartIcon from './NavbarCartIcon';
 import NavbarMobile from './NavbarMobile';
+import ThemeToggle from '../ThemeToggle';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -38,6 +39,8 @@ const Navbar = () => {
               handleSearch={handleSearch}
             />
             
+            <ThemeToggle />
+            
             <NavbarAuthButtons />
             
             <NavbarCartIcon />
@@ -45,6 +48,7 @@ const Navbar = () => {
           
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center space-x-4">
+            <ThemeToggle />
             <NavbarCartIcon />
             <button onClick={toggleMenu}>
               {isMenuOpen ? <X /> : <Menu />}

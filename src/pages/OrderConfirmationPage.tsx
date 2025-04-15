@@ -1,12 +1,33 @@
 
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import MainLayout from '@/components/Layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { CheckCircle } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 const OrderConfirmationPage = () => {
-  const orderNumber = Math.floor(1000000 + Math.random() * 9000000);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [orderNumber, setOrderNumber] = useState<string>('');
+  
+  useEffect(() => {
+    // Get order ID from URL params if available
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get('orderId');
+    
+    if (orderId) {
+      setOrderNumber(orderId);
+    } else {
+      // Fallback - generate a random order number
+      setOrderNumber(Math.floor(1000000 + Math.random() * 9000000).toString());
+    }
+    
+    // Redirect to login if not authenticated
+    if (!user) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
   
   return (
     <MainLayout>
