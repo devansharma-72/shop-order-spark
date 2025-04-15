@@ -67,13 +67,21 @@ export const useCheckoutForm = () => {
       
       if (orderError) throw orderError;
       
-      // Insert order items
-      const orderItems = items.map(item => ({
-        order_id: orderData.id,
-        product_id: item.product.id,
-        quantity: item.quantity,
-        price: item.product.price
-      }));
+      // Check if all products have valid UUIDs before inserting order items
+      const orderItems = items.map(item => {
+        // Ensure product ID is a valid UUID format
+        if (!item.product.id || !isValidUUID(item.product.id)) {
+          console.error(`Invalid product ID format: ${item.product.id}`);
+          throw new Error(`Invalid product ID format: ${item.product.id}`);
+        }
+        
+        return {
+          order_id: orderData.id,
+          product_id: item.product.id,
+          quantity: item.quantity,
+          price: item.product.price
+        };
+      });
       
       const { error: itemsError } = await supabase
         .from('order_items')
@@ -90,6 +98,12 @@ export const useCheckoutForm = () => {
       toast.dismiss();
       toast.error('There was an error processing your order. Please try again.');
     }
+  };
+
+  // Helper function to validate UUID format
+  const isValidUUID = (id: string) => {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(id);
   };
 
   return {
