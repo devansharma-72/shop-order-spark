@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Package, ArrowRight, XCircle } from 'lucide-react';
@@ -7,6 +6,16 @@ import { Order } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface OrderHistoryProps {
   orders: Order[];
@@ -17,30 +26,41 @@ interface OrderHistoryProps {
 const OrderHistory: React.FC<OrderHistoryProps> = ({ orders, isLoading, refreshOrders }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [orderToCancel, setOrderToCancel] = React.useState<string | null>(null);
   
-  const handleCancelOrder = async (orderId: string, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent navigation to details
+  const handleCancelOrder = async (orderId: string) => {
     if (!user) return;
     
     try {
       toast.loading('Cancelling order...');
       
-      const { error } = await supabase
+      // Delete order items first
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .delete()
+        .eq('order_id', orderId);
+      
+      if (itemsError) throw itemsError;
+      
+      // Then delete the order
+      const { error: orderError } = await supabase
         .from('orders')
-        .update({ status: 'cancelled' })
+        .delete()
         .eq('id', orderId)
         .eq('user_id', user.id);
       
-      if (error) throw error;
+      if (orderError) throw orderError;
       
       toast.dismiss();
-      toast.success('Order cancelled successfully');
+      toast.success('Order cancelled and removed successfully');
       refreshOrders();
       
     } catch (error) {
       console.error('Error cancelling order:', error);
       toast.dismiss();
       toast.error('Failed to cancel order');
+    } finally {
+      setOrderToCancel(null);
     }
   };
   
@@ -140,6 +160,7 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ orders, isLoading, refreshO
                     </div>
                   ))}
                 </div>
+                
                 <div className="mt-4 pt-3 border-t dark:border-gray-700 flex justify-between">
                   <div className="text-sm text-gray-600 dark:text-gray-400">
                     {order.items.reduce((sum, item) => sum + item.quantity, 0)} items
@@ -153,6 +174,26 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ orders, isLoading, refreshO
           ))}
         </div>
       )}
+      
+      <AlertDialog open={!!orderToCancel} onOpenChange={() => setOrderToCancel(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel Order</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to cancel this order? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>No, keep order</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-500 hover:bg-red-600"
+              onClick={() => orderToCancel && handleCancelOrder(orderToCancel)}
+            >
+              Yes, cancel order
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
