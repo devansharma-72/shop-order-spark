@@ -1,9 +1,11 @@
 
 import React, { useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Routes, Route } from 'react-router-dom';
 import MainLayout from '@/components/Layout/MainLayout';
 import { useAuth } from '@/context/AuthContext';
 import AdminProductsPanel from '@/components/Admin/AdminProductsPanel';
+import AdminUsersPanel from '@/components/Admin/AdminUsersPanel';
+import AdminSettingsPanel from '@/components/Admin/AdminSettingsPanel';
 import AdminSidebar from '@/components/Admin/AdminSidebar';
 import { toast } from 'sonner';
 
@@ -44,7 +46,11 @@ const AdminDashboardPage = () => {
           <AdminSidebar />
           
           <div className="md:col-span-3">
-            <AdminProductsPanel />
+            <Routes>
+              <Route index element={<AdminProductsPanel />} />
+              <Route path="users" element={<AdminUsersPanel />} />
+              <Route path="settings" element={<AdminSettingsPanel />} />
+            </Routes>
           </div>
         </div>
       </div>

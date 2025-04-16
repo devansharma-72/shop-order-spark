@@ -6,7 +6,6 @@ import { useAuth } from '@/context/AuthContext';
 import { 
   Package, 
   Users, 
-  ShoppingCart, 
   Settings, 
   LogOut
 } from 'lucide-react';
@@ -44,16 +43,6 @@ const AdminSidebar = () => {
           >
             <Users size={18} className="mr-2" />
             Users
-          </Button>
-        </Link>
-        
-        <Link to="/admin/orders">
-          <Button 
-            variant={isActive('/admin/orders') ? "default" : "ghost"} 
-            className="w-full justify-start"
-          >
-            <ShoppingCart size={18} className="mr-2" />
-            Orders
           </Button>
         </Link>
         
