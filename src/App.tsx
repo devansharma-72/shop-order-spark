@@ -22,6 +22,7 @@ import AccountPage from "./pages/AccountPage";
 import AboutPage from "./pages/AboutPage";
 import NotFound from "./pages/NotFound";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
+import ContactPage from "./pages/ContactPage"; // Add this import
 
 const queryClient = new QueryClient();
 
