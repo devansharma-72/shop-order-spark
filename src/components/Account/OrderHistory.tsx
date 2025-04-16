@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Package, ArrowRight, XCircle } from 'lucide-react';
@@ -129,7 +130,10 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ orders, isLoading, refreshO
                       variant="outline" 
                       size="sm" 
                       className="text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600"
-                      onClick={(e) => handleCancelOrder(order.id, e)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOrderToCancel(order.id);
+                      }}
                     >
                       <XCircle className="mr-1" size={14} />
                       Cancel

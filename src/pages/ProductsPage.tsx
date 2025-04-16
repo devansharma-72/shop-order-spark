@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import MainLayout from '@/components/Layout/MainLayout';
@@ -27,7 +28,18 @@ const ProductsPage = () => {
           console.error('Error fetching products:', error);
           toast.error('Failed to load products.');
         } else {
-          setProducts(data || []);
+          // Map database fields to our Product interface
+          const mappedProducts: Product[] = data.map(item => ({
+            id: item.id,
+            name: item.name,
+            description: item.description,
+            price: item.price,
+            imageUrl: item.image_url || '',
+            category: item.category,
+            inStock: item.in_stock
+          }));
+          
+          setProducts(mappedProducts);
         }
       } finally {
         setIsLoading(false);
