@@ -1,13 +1,23 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import MainLayout from '@/components/Layout/MainLayout';
 import { useAuth } from '@/context/AuthContext';
 import AdminProductsPanel from '@/components/Admin/AdminProductsPanel';
 import AdminSidebar from '@/components/Admin/AdminSidebar';
+import { toast } from 'sonner';
 
 const AdminDashboardPage = () => {
-  const { isAuthenticated, isAdmin, isLoading } = useAuth();
+  const { isAuthenticated, isAdmin, isLoading, profile } = useAuth();
+  
+  useEffect(() => {
+    // Debug information
+    console.log("Auth state:", { isAuthenticated, isAdmin, isLoading, profile });
+    
+    if (isAuthenticated && !isLoading && !isAdmin) {
+      toast.error("You don't have admin privileges to access this page");
+    }
+  }, [isAuthenticated, isAdmin, isLoading, profile]);
   
   // Show loading state
   if (isLoading) {

@@ -1,12 +1,13 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { User } from 'lucide-react';
+import { User, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const NavbarAuthButtons: React.FC = () => {
-  const { profile, isAuthenticated, logout } = useAuth();
+  const { profile, isAuthenticated, isAdmin, logout } = useAuth();
   
   // Get the first name from profile if available
   const firstName = profile?.full_name ? profile.full_name.split(' ')[0] : 'User';
@@ -17,7 +18,27 @@ const NavbarAuthButtons: React.FC = () => {
         <Link to="/account" className="hover:text-shop-secondary flex items-center gap-1">
           <User size={20} />
           <span className="text-sm">{firstName}</span>
+          
+          {isAdmin && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <ShieldCheck size={16} className="ml-1 text-green-500" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Admin Account</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </Link>
+        
+        {isAdmin && (
+          <Link to="/admin" className="text-sm text-shop-primary hover:text-shop-accent">
+            Admin
+          </Link>
+        )}
+        
         <Button 
           variant="ghost" 
           onClick={logout}
