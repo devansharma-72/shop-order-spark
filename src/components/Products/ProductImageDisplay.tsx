@@ -9,7 +9,7 @@ interface ProductImageDisplayProps {
 const ProductImageDisplay: React.FC<ProductImageDisplayProps> = ({ imageUrl, productName }) => {
   return (
     <div className="md:w-1/2">
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
         <img 
           src={imageUrl} 
           alt={productName} 

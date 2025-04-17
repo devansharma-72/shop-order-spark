@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import MainLayout from '@/components/Layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
@@ -12,6 +12,7 @@ const IndexPage = () => {
   const { isAuthenticated } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -47,14 +48,18 @@ const IndexPage = () => {
     fetchProducts();
   }, []);
 
+  const handleCategoryClick = (category: string) => {
+    navigate(`/products?category=${encodeURIComponent(category)}`);
+  };
+
   return (
     <MainLayout>
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold mb-6">Welcome to Our Store</h1>
+          <h1 className="text-4xl font-bold mb-6 dark:text-white">Welcome to Our Store</h1>
           {!isAuthenticated && (
             <div className="max-w-2xl mx-auto">
-              <p className="text-xl text-gray-600 mb-8">
+              <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
                 Please log in or register to start shopping
               </p>
               <div className="flex justify-center gap-4">
@@ -76,6 +81,21 @@ const IndexPage = () => {
         {!isLoading && products.length > 0 && (
           <ProductSlideshow products={products} />
         )}
+
+        <div className="mt-16">
+          <h2 className="text-2xl font-bold mb-8 text-center dark:text-white">Shop by Category</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {['Electronics', 'Clothing', 'Home & Kitchen', 'Beauty', 'Toys', 'Books', 'Sports', 'Footwear'].map((category) => (
+              <div 
+                key={category}
+                onClick={() => handleCategoryClick(category)}
+                className="cursor-pointer p-4 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-center"
+              >
+                <span className="font-medium dark:text-white">{category}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </MainLayout>
   );

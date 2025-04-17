@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import MainLayout from '@/components/Layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import ProductGrid from '@/components/Products/ProductGrid';
@@ -13,16 +13,24 @@ const ProductsPage = () => {
   const { isAuthenticated } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchParams] = useSearchParams();
+  const categoryFilter = searchParams.get('category');
   
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setIsLoading(true);
         
-        const { data, error } = await supabase
+        let query = supabase
           .from('products')
-          .select('*')
-          .order('created_at', { ascending: false });
+          .select('*');
+          
+        // Apply category filter if present
+        if (categoryFilter) {
+          query = query.eq('category', categoryFilter);
+        }
+        
+        const { data, error } = await query.order('created_at', { ascending: false });
         
         if (error) {
           console.error('Error fetching products:', error);
@@ -47,15 +55,15 @@ const ProductsPage = () => {
     };
     
     fetchProducts();
-  }, []);
+  }, [categoryFilter]);
   
   if (!isAuthenticated) {
     return (
       <MainLayout>
         <div className="container mx-auto px-4 py-16">
           <div className="text-center max-w-2xl mx-auto">
-            <h1 className="text-4xl font-bold mb-6">Welcome to Our Store</h1>
-            <p className="text-xl text-gray-600 mb-8">
+            <h1 className="text-4xl font-bold mb-6 dark:text-white">Welcome to Our Store</h1>
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
               Please log in or register to view our products and start shopping
             </p>
             <div className="flex justify-center gap-4">
@@ -79,7 +87,17 @@ const ProductsPage = () => {
   return (
     <MainLayout>
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Products</h1>
+        <h1 className="text-3xl font-bold mb-6 dark:text-white">
+          {categoryFilter ? `${categoryFilter} Products` : 'All Products'}
+        </h1>
+        
+        {categoryFilter && (
+          <div className="mb-6">
+            <Link to="/products" className="text-shop-primary hover:underline dark:text-shop-secondary">
+              ← Back to all products
+            </Link>
+          </div>
+        )}
         
         <ProductGrid products={products} isLoading={isLoading} />
       </div>
