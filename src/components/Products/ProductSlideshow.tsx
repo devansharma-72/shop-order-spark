@@ -27,28 +27,28 @@ const ProductSlideshow = ({ products }: ProductSlideshowProps) => {
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold mb-6 text-center">Featured Products</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center dark:text-white">Featured Products</h2>
       <Carousel className="w-full max-w-5xl mx-auto">
         <CarouselContent>
           {products.map((product) => (
             <CarouselItem key={product.id} className="md:basis-1/2 lg:basis-1/3">
               <div className="relative group p-2">
-                <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
                   <img
                     src={product.imageUrl}
                     alt={product.name}
                     className="w-full h-48 object-cover"
                   />
                   <div className="p-4">
-                    <h3 className="font-medium mb-2">{product.name}</h3>
-                    <p className="text-gray-600 text-sm mb-2 line-clamp-2">
+                    <h3 className="font-medium mb-2 dark:text-white">{product.name}</h3>
+                    <p className="text-gray-600 text-sm mb-2 line-clamp-2 dark:text-gray-300">
                       {product.description}
                     </p>
                     <div className="flex items-center justify-between mt-4">
-                      <span className="text-lg font-bold">${product.price.toFixed(2)}</span>
+                      <span className="text-lg font-bold dark:text-white">${product.price.toFixed(2)}</span>
                       <div className="flex gap-2">
                         <Link to={`/products/${product.id}`}>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" className="dark:text-white dark:border-gray-600">
                             View Details
                           </Button>
                         </Link>
