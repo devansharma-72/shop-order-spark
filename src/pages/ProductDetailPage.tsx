@@ -4,10 +4,11 @@ import { useParams, Link } from 'react-router-dom';
 import MainLayout from '@/components/Layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/CartContext';
-import { fetchProductById, fetchProducts } from '@/data/mockData';
-import { Product } from '@/types';
 import { ShoppingCart, Plus, Minus, ArrowLeft } from 'lucide-react';
 import ProductCard from '@/components/Products/ProductCard';
+import { Product } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,19 +25,60 @@ const ProductDetailPage = () => {
       
       setIsLoading(true);
       try {
-        const productData = await fetchProductById(id);
+        // Fetch product from Supabase
+        const { data: productData, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('id', id)
+          .single();
+        
+        if (error) {
+          console.error('Error loading product:', error);
+          toast.error('Failed to load product details');
+          setIsLoading(false);
+          return;
+        }
+        
         if (productData) {
-          setProduct(productData);
+          // Map database fields to our Product interface
+          const mappedProduct: Product = {
+            id: productData.id,
+            name: productData.name,
+            description: productData.description,
+            price: productData.price,
+            imageUrl: productData.image_url || '',
+            category: productData.category,
+            inStock: productData.in_stock
+          };
+          
+          setProduct(mappedProduct);
           
           // Load related products (same category)
-          const allProducts = await fetchProducts();
-          const related = allProducts
-            .filter(p => p.id !== id && p.category === productData.category)
-            .slice(0, 4);
-          setRelatedProducts(related);
+          const { data: relatedData, error: relatedError } = await supabase
+            .from('products')
+            .select('*')
+            .eq('category', productData.category)
+            .neq('id', id)
+            .limit(4);
+          
+          if (!relatedError && relatedData) {
+            // Map database fields to our Product interface
+            const mappedRelated: Product[] = relatedData.map(item => ({
+              id: item.id,
+              name: item.name,
+              description: item.description,
+              price: item.price,
+              imageUrl: item.image_url || '',
+              category: item.category,
+              inStock: item.in_stock
+            }));
+            
+            setRelatedProducts(mappedRelated);
+          }
         }
       } catch (error) {
-        console.error('Error loading product:', error);
+        console.error('Error in product fetch:', error);
+        toast.error('Something went wrong');
       } finally {
         setIsLoading(false);
       }
@@ -58,6 +100,7 @@ const ProductDetailPage = () => {
   const handleAddToCart = () => {
     if (product) {
       addToCart(product, quantity);
+      toast.success(`${quantity} × ${product.name} added to cart`);
     }
   };
   
